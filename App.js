@@ -76,39 +76,41 @@ export default class App extends Component<{}> {
     }
 
   getCities = () => {
-      return fetch('https://api.citybik.es/v2/networks')
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
+    return fetch('https://api.citybik.es/v2/networks')
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            console.warn('response not ok');
+          }
+        })
+        .then((responseJson) => {
+          const countries = [];
+          responseJson.networks.forEach((net) => {
+            let c = countries.find((c) => {
+              return c.title === net.location.country;
+            });
+            if (!c) {
+              countries.push({title: net.location.country, data: [net]});
             } else {
-              console.warn('response not ok');
+              c.data.push(net);
             }
-          })
-          .then((responseJson) => {
-            const countries = [];
-            responseJson.networks.forEach((net) => {
-              let c = countries.find((c) => {
-                return c.title === net.location.country;
-              });
-              if (!c) {
-                countries.push({title: net.location.country, data: [net]});
-              } else {
-                c.data.push(net);
-              }
-            });
-            countries.forEach((country) =>{
-              country.data.sort((a,b) => {
-                return a.location.city < b.location.city ? -1 : (a.location.city > b.location.city ? 1 : 0 );
-              });
-            });
-            console.warn(JSON.stringify(countries));
-            this.setState({
-              countries
-            });
-          })
-          .catch((error) => {
-            console.warn(error);
           });
+          countries.forEach((country) =>{
+            country.data.sort((a,b) => {
+              return a.location.city < b.location.city ? -1 : (a.location.city > b.location.city ? 1 : 0 );
+            });
+          });
+          countries.sort((a,b) => {
+            return a.title < b.title ? -1 : (a.title > b.title ? 1 : 0 );
+          });
+          this.setState({
+            countries
+          });
+        })
+        .catch((error) => {
+          console.warn(error);
+        });
   }
 
     getBikesLocations = (city) => {
@@ -181,7 +183,6 @@ export default class App extends Component<{}> {
     }
 
     cityListView = () => {
-      console.warn('city list view');
       return (<SectionList
           keyExtractor={ (item) => { return item.id} }
           renderItem={({item}) => <SectionItem text={item.location.city} onPress={ () => { this.onChangeCity(item.id); }} />}
@@ -233,19 +234,24 @@ export default class App extends Component<{}> {
 
 const styles = StyleSheet.create({
     container: {
-        ...StyleSheet.absoluteFillObject,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
+      flex: 1,
+      justifyContent: 'flex-end',
+      alignItems: 'center',
     },
     map: {
-      width: 'auto',
-      height: 'auto',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
     },
     controls: {
+      ...StyleSheet.absoluteFillObject,
       position: 'absolute',
       flex: 1,
       flexDirection: 'column',
-      justifyContent: 'space-between',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
     },
     picker: {
       width: 180,
