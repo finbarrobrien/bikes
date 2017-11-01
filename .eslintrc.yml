@@ -1,0 +1,131 @@
+---
+parser: babel-eslint
+extends:
+  - airbnb
+  - plugin:eslint-plugin-flowtype/recommended
+
+
+plugins:
+  - eslint-plugin-flowtype
+  - eslint-plugin-react
+  - eslint-plugin-import
+
+globals:
+
+  # externals
+  window: false
+
+env:
+  jest: true
+
+rules:
+
+  # disabled eslint rules
+  linebreak-style: off
+  new-cap: off
+  func-names: off
+  global-require: off
+  eol-last: off
+  quote-props: off
+  class-methods-use-this: off
+  no-nested-ternary: off
+  no-param-reassign: off
+  no-underscore-dangle: off
+  no-plusplus: off
+  no-continue: off
+  no-mixed-operators: off
+
+  react/no-unused-prop-types: off
+  react/react-in-jsx-scope: off
+  react/prefer-stateless-function: off
+  react/no-multi-comp: off
+  react/jsx-filename-extension: off
+  react/jsx-tag-spacing: off
+  react/sort-comp: off
+
+  jsx-a11y/img-uses-alt: off
+  jsx-a11y/html-has-lang: off
+  jsx-a11y/label-has-for: off
+  jsx-a11y/img-has-alt: off
+  jsx-a11y/no-static-element-interactions: off
+
+  import/prefer-default-export: off
+  import/no-absolute-path: off
+
+  flowtype/no-types-missing-file-annotation: off
+
+
+  # customization to airbnb rule set
+  import/no-unresolved:
+    - error
+    - ignore: ["^[~]"]
+  import/extensions:
+    - error
+    - never
+  padded-blocks:
+    - error
+    - classes: always
+  no-multiple-empty-lines:
+    - error
+    - max: 2
+  arrow-body-style:
+    - error
+    - always
+  no-trailing-spaces:
+    - error
+    - skipBlankLines: true
+  no-console:
+    - error
+    - allow: [warn, error, info, debug]
+  no-unused-vars:
+    - error
+    - vars: all
+      args: none
+  no-labels:
+    - error
+    - allowLoop: true
+  indent:
+    - error
+    - 2
+    - FunctionDeclaration:
+        body: 1
+        parameters: 2
+      FunctionExpression:
+        body: 1
+        parameters: 2
+      CallExpression:
+        arguments: first
+      MemberExpression: 2
+      VariableDeclarator: 2
+      SwitchCase: 1
+
+  react/require-default-props:
+    - error
+  react/jsx-indent-props:
+    - error
+    - 4
+  react/jsx-indent:
+    - error
+    - 2
+  react/jsx-space-before-closing:
+    - error
+    - never
+  react/jsx-curly-spacing:
+    - error
+    - always
+  react/jsx-boolean-value:
+    - error
+    - never
+  react/forbid-prop-types:
+    - error
+    - forbid:
+      - any
+      - array
+  react/prop-types:
+    - error
+    - ignore:
+      - children
+  react/jsx-closing-bracket-location:
+    - error
+    - nonEmpty: after-props
+      selfClosing: after-props
