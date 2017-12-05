@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
 
-
 const styles = StyleSheet.create({
   text: {
     paddingLeft: 16,
@@ -13,24 +12,21 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export default class SectionItem extends React.Component {
-
+export default class SectionItem extends React.PureComponent {
   static defaultProps = {
     text: '',
     onPress: () => {},
-  }
+  };
 
   render() {
-
     return (
-      <TouchableHighlight onPress={ this.props.onPress }>
+      <TouchableHighlight onPress={this.props.onPress}>
         <View>
-          <Text style={ styles.text } numberOfLines={ 1 } ellipsizeMode="tail">{ this.props.text }</Text>
+          <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
+            {this.props.text}
+          </Text>
         </View>
       </TouchableHighlight>
     );
   }
-
 }
-
