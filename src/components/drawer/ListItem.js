@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
     paddingLeft: 16,
-    paddingRight: 16,
+    //paddingRight: 16,
   },
   text: {
     fontFamily: 'Roboto, sans-serif',

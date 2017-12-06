@@ -1,6 +1,7 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { connect } from 'react-redux';
 
 import { icons } from '../commons/icons';
 
@@ -9,6 +10,14 @@ const styles = {
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+};
+
+const mapStateToProps = store => {
+  return {
+    showingBikes: store.showingBikes,
+    network: store.selectedNetwork,
+    region: store.currentRegion,
+  };
 };
 
 const getStationDescription = station => {
@@ -60,19 +69,27 @@ const getPin = (station, showingBikes) => {
 };
 
 class BikesMapView extends React.Component {
-  static defaultProps = {
-    /*region: {
-      latitude: 53.347539,
-      longitude: -6.259272,
-      latitudeDelta: INITIAL_LATITUDE_DELTA,
-      longitudeDelta: INITIAL_LONGITUDE_DELTA,
-    },*!/*/
-    stations: [],
-  };
 
   render() {
-    const { region, stations, showingBikes } = this.props;
-
+    const { region, network, showingBikes } = this.props;
+    let stations = []
+    /*if(network) {
+      console.warn(network);
+      stations = network.stations.map(station => {
+        return (
+            <MapView.Marker
+                image={getPin(station, showingBikes)}
+                key={station.id}
+                title={station.extra.address || station.name}
+                description={getStationDescription(station)}
+                coordinate={{
+                  latitude: station.latitude,
+                  longitude: station.longitude,
+                }}
+            />
+        );
+      });
+    }*/
     return (
       <MapView
           style={styles.map}
@@ -83,23 +100,12 @@ class BikesMapView extends React.Component {
           showsUserLocation
           showsMyLocationButton
       >
-        {stations.map(station => {
-          return (
-              <MapView.Marker
-                  image={getPin(station, showingBikes)}
-                  key={station.id}
-                  title={station.extra.address || station.name}
-                  description={getStationDescription(station)}
-                  coordinate={{
-                    latitude: station.latitude,
-                    longitude: station.longitude,
-                  }}
-              />
-          );
-        })}
+        { stations }
       </MapView>
     );
   }
 };
 
-export { BikesMapView };
+const ReduxBikesMapView = connect(mapStateToProps)(BikesMapView);
+
+export { ReduxBikesMapView };

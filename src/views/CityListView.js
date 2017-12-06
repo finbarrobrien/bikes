@@ -1,7 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { ListItem } from '../components/drawer/ListItem';
 import { Link } from 'react-router-native';
-import {CityListView} from "./CityListView";
 
 const styles = {
   containerFullScreen: {
@@ -12,20 +11,20 @@ const styles = {
   },
 };
 
-const CountryListView = ({countries}) => {
+const CityListView = ({cities}) => {
   return(
     <View style={styles.containerFullScreen}>
       {
-        countries.forEach((c) => {
-          <Link key={c.name} to={`/citybikes/${c.shortCode}`} component={CityListView} cities={c.cities}/>
+        cities.forEach((c) => {
+          <Link key={c.name} to={`/citybikes/${c.id}`} component={NetworkListView} networks={c.networks}/>
         })
       }
     </View>
   );
 }
 
-CountryListView.defaultProps = {
-  countries: [],
+CityListView.defaultProps = {
+  cities: [],
 };
 
-export { CountryListView };
+export { CityListView };
