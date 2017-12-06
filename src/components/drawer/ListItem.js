@@ -8,8 +8,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     height: 48,
-    /*borderWidth: 1,
-    borderColor: '#000000',*/
   },
   badge: {
     paddingTop: 12,

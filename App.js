@@ -2,19 +2,21 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
-  Dimensions,
   DrawerLayoutAndroid,
   FlatList,
+  Dimensions,
 } from 'react-native';
-import MapView from 'react-native-maps';
-import { ListItem } from './src/components/drawer/ListItem';
-import { COUNTRY_CODES } from './consts';
 
+import { BikesMapView } from './src/views/BikesMapView';
+import { ListItem } from './src/components/drawer/ListItem';
+import { COUNTRY_CODES } from './src/commons/consts';
+import { icons} from "./src/commons/icons";
+import { getBikeNetworkInfo } from './src/api/api';
 import { FloatingActionButton } from './FloatingActionButton';
 import { AccordionItem } from './src/components/drawer/AccordionItem';
 
-const { width, height } = Dimensions.get('window');
 
+const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const INITIAL_LATITUDE_DELTA = 0.0922;
 const INITIAL_LONGITUDE_DELTA = INITIAL_LATITUDE_DELTA * ASPECT_RATIO;
@@ -26,7 +28,7 @@ export default class App extends Component {
       countries: [],
       city: null,
       stations: [],
-      needABike: true,
+      showingBikes: true,
       region: {
         latitude: 53.347539,
         longitude: -6.259272,
@@ -36,28 +38,6 @@ export default class App extends Component {
       error: null,
     };
   }
-
-  /*watchLocation() {
-        if (navigator.geolocation) {
-            this.watchId = navigator.geolocation.watchPosition((position) => {
-                this.setState({
-                    region: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        latitudeDelta: INITIAL_LATITUDE_DELTA,
-                        longitudeDelta: INITIAL_LONGITUDE_DELTA,
-                    },
-                    error: null,
-                })
-            },
-            (error) => this.setState({ error: error.message }),
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
-        } else {
-            this.setState({
-                error: 'Geolocation is not available'
-            })
-        }
-    }*/
 
   componentDidMount() {
     //this.watchLocation();
@@ -112,9 +92,7 @@ export default class App extends Component {
           return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
         });
         this.setState({
-          countries: countries.filter(c => {
-            return c.title === 'Ireland' || c.title === 'Poland';
-          }), // temporary measure till performance can be fixed
+          countries: countries
         });
       })
       .catch(error => {
@@ -122,67 +100,31 @@ export default class App extends Component {
       });
   };
 
-  getBikesLocations = city => {
-    if (city) {
-      return fetch(`https://api.citybik.es/v2/networks/${city}`)
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            console.warn('response not ok');
-          }
-        })
-        .then(responseJson => {
-          const newRegion = {
-            latitude: responseJson.network.location.latitude,
-            longitude: responseJson.network.location.longitude,
-            latitudeDelta: this.state.region.latitudeDelta,
-            longitudeDelta: this.state.region.longitudeDelta,
-          };
-          this.map.animateToRegion(newRegion);
-          this.setState({
-            city,
-            stations: responseJson.network.stations,
-            region: newRegion,
-          });
-        })
-        .catch(error => {
-          console.warn(error);
-        });
-    }
+  getBikesLocations = async (city) => {
+    const network = await getBikeNetworkInfo(city);
+    const newRegion = {
+      latitude: network.location.latitude,
+      longitude: network.location.longitude,
+      latitudeDelta: this.state.region.latitudeDelta,
+      longitudeDelta: this.state.region.longitudeDelta,
+    };
+    //this.map.animateToRegion(newRegion);
+    this.setState({
+      city,
+      stations: network.stations,
+      region: newRegion,
+    });
   };
 
   onRegionChange = region => {
     this.setState({ region });
   };
 
-  getStationDescription = station => {
-    return `${station.free_bikes} bikes, ${station.empty_slots} spaces`;
-  };
 
-  getPin = station => {
-    if (this.state.needABike) {
-      return station.free_bikes === 0
-        ? { uri: 'ic_place_grey_24px' }
-        : station.free_bikes < station.extra.slots * 0.33
-          ? { uri: 'ic_place_red_24px' }
-          : station.free_bikes < station.extra.slots * 0.5
-            ? { uri: 'ic_place_amber_24px' }
-            : { uri: 'ic_place_green_24px' };
-    } else {
-      return station.empty_slots === 0
-        ? { uri: 'ic_place_grey_24px' }
-        : station.empty_slots < station.extra.slots * 0.33
-          ? { uri: 'ic_place_red_24px' }
-          : station.empty_slots < station.extra.slots * 0.5
-            ? { uri: 'ic_place_amber_24px' }
-            : { uri: 'ic_place_green_24px' };
-    }
-  };
 
   toggleBikeParking = () => {
     this.setState({
-      needABike: !this.state.needABike,
+      showingBikes: !this.state.showingBikes,
     });
   };
 
@@ -239,36 +181,13 @@ export default class App extends Component {
       >
         <View style={styles.container}>
           <View style={styles.map} />
-          <MapView
-            style={styles.map}
-            ref={ref => {
-              this.map = ref;
-            }}
-            region={region}
-            showsUserLocation
-            showsMyLocationButton
-          >
-            {this.state.stations.map(station => {
-              return (
-                <MapView.Marker
-                  image={this.getPin(station)}
-                  key={station.id}
-                  title={station.extra.address || station.name}
-                  description={this.getStationDescription(station)}
-                  coordinate={{
-                    latitude: station.latitude,
-                    longitude: station.longitude,
-                  }}
-                />
-              );
-            })}
-          </MapView>
+          <BikesMapView region={this.state.region} stations={this.state.stations} showingBikes={this.state.showingBikes}/>
           <View style={styles.controls}>
             <View style={styles.button}>
               <FloatingActionButton
                 key="locations"
                 color="#607D8B"
-                src="ic_location_city_white_24dp"
+                src={icons.city}
                 onPress={() => {
                   this.drawer.openDrawer();
                 }}
@@ -278,16 +197,16 @@ export default class App extends Component {
                 key="biker"
                 color="#607D8B"
                 src={
-                  this.state.needABike
-                    ? 'ic_directions_bike_white_24px'
-                    : 'ic_local_parking_white_24px'
+                  this.state.showingBikes
+                    ? icons.bike
+                    : icons.parking
                 }
                 onPress={this.toggleBikeParking}
               />
               <FloatingActionButton
                 key="sync"
                 color="#607D8B"
-                src="ic_sync_white_24px"
+                src={ icons.refresh}
                 onPress={() => {
                   this.onChangeCity(this.state.city);
                 }}
@@ -306,9 +225,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
+
   controls: {
     position: 'absolute',
     flex: 1,

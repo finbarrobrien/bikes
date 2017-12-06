@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { ListItem } from './ListItem';
+import { icons } from "../../commons/icons";
 
 const styles = StyleSheet.create({
   listItem: {
@@ -26,8 +27,8 @@ const styles = StyleSheet.create({
 });
 
 const badges = {
-  expand: 'ic_expand_more_black_24dp',
-  contract: 'ic_expand_less_black_24dp',
+  expand: icons.more,
+  contract: icons.less,
 };
 
 class AccordionItem extends React.Component {
