@@ -3,16 +3,15 @@ import {
   StyleSheet,
   View,
   Dimensions,
-  Picker,
-  Text,
   DrawerLayoutAndroid,
-  SectionList,
+  FlatList,
 } from 'react-native';
 import MapView from 'react-native-maps';
+import { ListItem } from './src/components/drawer/ListItem';
+import { COUNTRY_CODES } from './consts';
 
-import FloatingActionButton from './FloatingActionButton';
-import SectionItem from './SectionItem';
-import SectionHeader from './SectionHeader';
+import { FloatingActionButton } from './FloatingActionButton';
+import { AccordionItem } from './src/components/drawer/AccordionItem';
 
 const { width, height } = Dimensions.get('window');
 
@@ -73,7 +72,6 @@ export default class App extends Component {
   }
 
   getCities = () => {
-    console.warn('call me once');
     return fetch('https://api.citybik.es/v2/networks')
       .then(response => {
         if (response.ok) {
@@ -86,10 +84,19 @@ export default class App extends Component {
         const countries = [];
         responseJson.networks.forEach(net => {
           let c = countries.find(c => {
-            return c.title === net.location.country;
+            return c.shortCode === net.location.country;
           });
           if (!c) {
-            countries.push({ title: net.location.country, data: [net] });
+            const cMap = COUNTRY_CODES.find(country => {
+              return country.shortCode === net.location.country;
+            });
+            if (cMap) {
+              countries.push({
+                title: cMap.label,
+                shortCode: net.location.country,
+                data: [net],
+              });
+            }
           } else {
             c.data.push(net);
           }
@@ -106,7 +113,7 @@ export default class App extends Component {
         });
         this.setState({
           countries: countries.filter(c => {
-            return c.title === 'IE';
+            return c.title === 'Ireland' || c.title === 'Poland';
           }), // temporary measure till performance can be fixed
         });
       })
@@ -185,25 +192,35 @@ export default class App extends Component {
     }
   };
 
+  accordionItemRenderer = (item) => {
+    return (
+      <ListItem
+        key={item.id}
+        text={item.location.city}
+        onPress={() => {
+          this.onChangeCity(item.id);
+          this.drawer.closeDrawer();
+        }}
+      />
+    );
+  };
+
   cityListView = () => {
     return (
-      <SectionList
+      <FlatList
+        data={this.state.countries}
         keyExtractor={item => {
-          return item.id;
+          return item.title;
         }}
-        maxToRenderPerBatch={200}
-        renderItem={({ item }) => (
-          <SectionItem
-            text={item.location.city}
-            onPress={() => {
-              this.onChangeCity(item.id);
-            }}
-          />
-        )}
-        renderSectionHeader={({ section }) => (
-          <SectionHeader text={section.title} />
-        )}
-        sections={this.state.countries}
+        renderItem={({item}) => {
+          return (
+            <AccordionItem
+              text={item.title}
+              data={item.data}
+              itemRenderer={this.accordionItemRenderer}
+            />
+          );
+        }}
       />
     );
   };
@@ -251,12 +268,13 @@ export default class App extends Component {
               <FloatingActionButton
                 key="locations"
                 color="#607D8B"
-                src="ic_place_white_24px"
+                src="ic_location_city_white_24dp"
                 onPress={() => {
                   this.drawer.openDrawer();
                 }}
               />
               <FloatingActionButton
+                style={{ paddingLeft: 16, paddingRight: 16 }}
                 key="biker"
                 color="#607D8B"
                 src={
@@ -316,10 +334,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
-    paddingBottom: 16,
-    paddingTop: 16,
-    paddingLeft: 16,
-    paddingRight: 16,
     zIndex: 10,
+    padding: 16,
   },
 });
