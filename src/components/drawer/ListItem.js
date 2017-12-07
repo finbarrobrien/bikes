@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
+import { fonts } from '../../commons/fonts';
+
 const styles = StyleSheet.create({
   listItem: {
     flex: 1,
@@ -15,12 +17,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     //paddingRight: 16,
   },
-  text: {
-    fontFamily: 'Roboto, sans-serif',
-    fontWeight: 'normal',
-    fontSize: 16,
-    color: 'rgba(0, 0, 0, 0.87)',
-  },
+
 });
 
 class ListItem extends Component {
@@ -41,7 +38,7 @@ class ListItem extends Component {
             </View> :
             null
           }
-          <Text style={styles.text} numberOfLines={1} ellipsizeMode="tail">
+          <Text style={fonts.subheader} numberOfLines={1} ellipsizeMode="tail">
             {text}
           </Text>
         </View>

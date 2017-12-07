@@ -9,11 +9,6 @@ import {
 } from 'react-native';
 
 const Button = StyleSheet.create({
-  roundButton: {
-    flex: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   icon: {
     width: 24,
     height: 24,
@@ -30,7 +25,7 @@ class FloatingActionButton extends React.Component {
     style: {},
     src: '',
     elevation: 2,
-    radius: 28,
+    radius: null,
     color: '',
     onPress: () => {},
     small: false,
@@ -90,31 +85,28 @@ class FloatingActionButton extends React.Component {
       testID,
       elevation,
       radius,
+      small,
       style,
     } = this.props;
 
-    const buttonStyle = [Button.roundButton];
+    const buttonStyle = [];
     const accessibilityTraits = ['button'];
 
     if (color) {
-      buttonStyle.push({ backgroundColor: this.props.color });
+      buttonStyle.push({ backgroundColor: color });
     }
     if (elevation) {
-      buttonStyle.push({ elevation: this.props.elevation });
+      buttonStyle.push({ elevation: elevation });
     }
-    if (radius) {
-      buttonStyle.push({
-        width: 2 * this.props.radius,
-        height: 2 * this.props.radius,
-        borderRadius: 2 * this.props.radius,
-      });
-    } else {
-      buttonStyle.push({
-        width: this.props.small ? 20 : 28,
-        height: this.props.small ? 20 : 28,
-        borderRadius: this.props.small ? 20 : 28,
-      });
-    }
+    const buttonSize = {
+      flex: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 2 * (radius ? radius : (small ? 20 : 28)),
+      height: 2 * (radius ? radius : (small ? 20 : 28)),
+      borderRadius: 2 * (radius ? radius : (small ? 20 : 28)),
+    };
+    buttonStyle.push(buttonSize);
     buttonStyle.push({ transform: [{ scale: this.state.scale }] });
 
     return (
@@ -129,16 +121,7 @@ class FloatingActionButton extends React.Component {
             onPress={onPress}
             background={TouchableNativeFeedback.Ripple('#ffffff', true)}
           >
-            <View
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: 28,
-                flex: 0,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <View style={buttonSize}>
               <Image style={Button.icon} source={{ uri: src }} />
             </View>
           </TouchableNativeFeedback>

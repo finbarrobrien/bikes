@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-native';
 
 import { ListItem } from '../components/drawer/ListItem';
-
+import { ListViewHeader } from '../components/drawer/ListViewHeader';
 
 const styles = {
   containerFullScreen: {
@@ -21,10 +21,13 @@ const mapStateToProps = store => {
   };
 };
 
-const CityListView = ({countries, location, match}) => {
+const title = 'Select a City';
+
+const CityListView = ({countries, location, match, history}) => {
   const selectedCountry = countries.find((c) => { return c.path === match.params.country; });
   return(
     <View style={styles.containerFullScreen}>
+      <ListViewHeader history={history} title={title} />
       <FlatList
           data={selectedCountry.cities}
           keyExtractor={(item) => { return item.path }}

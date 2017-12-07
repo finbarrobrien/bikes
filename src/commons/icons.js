@@ -11,6 +11,7 @@ const icons = {
   refresh: 'ic_sync_white_24px',
   more: 'ic_expand_more_black_24dp',
   less: 'ic_expand_less_black_24dp',
+  backButton: 'ic_arrow_back_white_24dp',
 };
 
 export { icons };
