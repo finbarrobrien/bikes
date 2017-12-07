@@ -5,7 +5,7 @@ const bikesReducers = (state, action) => {
     case 'set-bike-parking-mode':
       return {
         ...state,
-        showingBikes: action.mode,
+        showingBikes: !state.showingBikes,
       };
     case 'set-countries-info':
       return {
@@ -16,6 +16,11 @@ const bikesReducers = (state, action) => {
       return {
         ...state,
         selectedNetwork: action.data,
+      };
+    case 'set-map-center':
+      return {
+        ...state,
+        mapCenter: action.center,
       };
     default:
       return state;

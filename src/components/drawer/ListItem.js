@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
 });
 
-class ListItem extends React.Component {
+class ListItem extends Component {
   static defaultProps = {
     text: '',
     badge: '',

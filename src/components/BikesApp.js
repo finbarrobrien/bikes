@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
-import { Link } from 'react-router-dom';
-
+import { Link } from 'react-router-native';
+import { withRouter } from 'react-router';
 import { ReduxBikesMapView } from '../views/BikesMapView';
 import { FloatingActionButton } from '../../FloatingActionButton';
 import { icons } from '../commons/icons';
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = store => {
   return {
     network: store.selectedNetwork,
-    region: store.currentRegion,
+    mapCenter: store.mapCenter,
     showingBikes: store.showingBikes,
   };
 };
@@ -50,45 +50,42 @@ const mapStateToProps = store => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     toggleBikeParking: () => {
-      dispatch(setBikeParkingMode({ showingBikes: !ownProps.showingBikes }));
+      dispatch(setBikeParkingMode());
     },
     refreshStations: () => {
-      dispatch(updateNetwork(ownProps.network));
+      if (ownProps.network) {
+        dispatch(updateNetwork(ownProps.network));
+      }
+    },
+    updateCountries: () => {
+      dispatch(updateCountryList());
     },
   };
 };
 
-const { width, height } = Dimensions.get('window');
-const ASPECT_RATIO = width / height;
-const INITIAL_LATITUDE_DELTA = 0.0922;
-const INITIAL_LONGITUDE_DELTA = INITIAL_LATITUDE_DELTA * ASPECT_RATIO;
 
-class BikesApp extends React.Component {
+class BikesApp extends Component {
 
   componentDidMount() {
-    dispatch(updateCountryList());
+    this.props.updateCountries();
   }
 
   render() {
-    const { showingBikes, toggleBikeParking, network, region } = this.props;
+    const { showingBikes, toggleBikeParking, refreshStations, network, mapCenter } = this.props;
+
     return (
       <View style={styles.container}>
         <View style={styles.map} />
         <ReduxBikesMapView
-          region={region}
+          center={mapCenter}
           stations={network}
           showingBikes={showingBikes}
         />
         <View style={styles.controls}>
           <View style={styles.button}>
-            <Link
-              to="/citybikes"
-              component={FloatingActionButton}
-              color="#607D8B"
-              src={icons.city}
-            />
+            <Link key="country-list" to="/citybikes" component={FloatingActionButton} color="#607D8B" src={icons.city} style={{ paddingLeft: 16, paddingRight: 16 }} />
             <FloatingActionButton
-              style={{ paddingLeft: 16, paddingRight: 16 }}
+              style={{  paddingRight: 16 }}
               key="biker"
               color="#607D8B"
               src={showingBikes ? icons.bike : icons.parking}
@@ -109,6 +106,6 @@ class BikesApp extends React.Component {
   }
 }
 
-const ReduxBikesApp = connect(mapStateToProps, mapDispatchToProps)(BikesApp);
+const ReduxBikesApp = withRouter(connect(mapStateToProps, mapDispatchToProps)(BikesApp));
 
 export { ReduxBikesApp };

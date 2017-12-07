@@ -1,5 +1,6 @@
 import { getBikeNetworkInfo, getCities } from '../api/api';
 import { COUNTRY_CODES } from '../commons/consts';
+import kebabCase from 'lodash/kebabCase';
 
 const setCountriesInfo = ({ countries }) => {
   return {
@@ -8,10 +9,9 @@ const setCountriesInfo = ({ countries }) => {
   };
 };
 
-const setBikeParkingMode = ({ mode }) => {
+const setBikeParkingMode = () => {
   return {
     type: 'set-bike-parking-mode',
-    mode,
   };
 };
 
@@ -19,6 +19,13 @@ const updateSelectedNetwork = (data) => {
   return {
     type: 'set-selected-network-data',
     data,
+  };
+};
+
+const updateMapCenter = (center) => {
+  return {
+    type: 'set-map-center',
+    center,
   };
 }
 
@@ -28,7 +35,7 @@ const updateCountryList =  () => {
     const countries = [];
     responseJson.networks.forEach(net => {
       let c = countries.find(c => {
-        return c.shortCode === net.location.country;
+        return c.path === net.location.country;
       });
       //const networkBikes = net.location.stations.reduce((sum, station) => { return sum + (station.free_bikes || 0); }, 0);
       if (!c) {
@@ -37,46 +44,55 @@ const updateCountryList =  () => {
         });
         if (cMap) {
           countries.push({
-            title: cMap.label,
-            shortCode: net.location.country,
-            cities: {
-              [net.location.city]: [net],
-            },
+            label: cMap.label,
+            path: net.location.country,
+            cities: [{
+              label: net.location.city,
+              path: kebabCase(net.location.city),
+              networks: [net],
+            }],
           });
         } else {
           console.warn(net.location);
         }
       } else {
-        c.cities[net.location.city]
-            ? c.cities[net.location.city].push(net)
-            : (c.cities[net.location.city] = [net]);
+        const city = c.cities.find((city) => { return city.label === net.location.city; });
+        if (city) {
+          city.networks.push(net);
+        } else {
+          c.cities.push({
+            label: net.location.city,
+            path: kebabCase(net.location.city),
+            networks: [net],});
+        }
       }
     });
     countries.forEach(country => {
-      country.data.sort((a, b) => {
-        return a.location.city < b.location.city
+      country.cities.sort((a, b) => {
+        return a.label < b.label
             ? -1
-            : a.location.city > b.location.city ? 1 : 0;
+            : a.label > b.label ? 1 : 0;
       });
     });
     countries.sort((a, b) => {
-      return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
     });
     dispatch(setCountriesInfo({countries}));
   }
 };
 
-const updateNetwork = city => {
+const updateNetwork = ({network}) => {
   return async (dispatch) => {
-    const network = await getBikeNetworkInfo(city);
-    const newRegion = {
-      latitude: network.location.latitude,
-      longitude: network.location.longitude,
-      latitudeDelta: this.state.region.latitudeDelta,
-      longitudeDelta: this.state.region.longitudeDelta,
-    };
-    dispatch(updateSelectedNetwork({city, stations: network.stations, region: newRegion }))
+    if (network) {
+      const res = await getBikeNetworkInfo(network);
+      const center = {
+        latitude: res.location.latitude,
+        longitude: res.location.longitude,
+      };
+      dispatch(updateSelectedNetwork(res));
+      dispatch(updateMapCenter(center))
+    }
   }
 };
 
-export { setCountriesInfo, setBikeParkingMode, updateNetwork };
+export { setCountriesInfo, setBikeParkingMode, updateNetwork, updateCountryList, updateMapCenter };

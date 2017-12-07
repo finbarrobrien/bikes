@@ -1,25 +1,37 @@
-import { View, StyleSheet } from 'react-native';
-import { ListItem } from '../components/drawer/ListItem';
+import React from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-native';
-import {CityListView} from "./CityListView";
+import { withRouter } from 'react-router'
+
+import { ListItem } from '../components/drawer/ListItem';
+
 
 const styles = {
   containerFullScreen: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'flex-start',
     ...StyleSheet.absoluteFillObject,
   },
 };
 
-const CountryListView = ({countries}) => {
+const mapStateToProps = store => {
+  return {
+    countries: store.countries,
+  };
+};
+
+const CountryListView = ({countries, location}) => {
   return(
     <View style={styles.containerFullScreen}>
-      {
-        countries.forEach((c) => {
-          <Link key={c.name} to={`/citybikes/${c.shortCode}`} component={CityListView} cities={c.cities}/>
-        })
-      }
+      <FlatList
+          data={countries}
+          keyExtractor={(item) => { return item.path }}
+          renderItem={ ({item}) => {
+            return (<Link key={item.path} to={`${location.pathname}/${item.path}`} component={ListItem} text={item.label}/>);
+          }}
+        />
     </View>
   );
 }
@@ -28,4 +40,6 @@ CountryListView.defaultProps = {
   countries: [],
 };
 
-export { CountryListView };
+const ReduxCountryListView = connect(mapStateToProps)(CountryListView);
+
+export { ReduxCountryListView };

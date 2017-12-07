@@ -1,8 +1,8 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
-
+import { withRouter } from 'react-router';
 import { icons } from '../commons/icons';
 
 
@@ -12,11 +12,16 @@ const styles = {
   },
 };
 
+const { width, height } = Dimensions.get('window');
+const ASPECT_RATIO = width / height;
+const INITIAL_LATITUDE_DELTA = 0.0922;
+const INITIAL_LONGITUDE_DELTA = INITIAL_LATITUDE_DELTA * ASPECT_RATIO;
+
 const mapStateToProps = store => {
   return {
     showingBikes: store.showingBikes,
-    network: store.selectedNetwork,
-    region: store.currentRegion,
+    stations: store.selectedNetwork.stations,
+    center: store.mapCenter,
   };
 };
 
@@ -71,11 +76,17 @@ const getPin = (station, showingBikes) => {
 class BikesMapView extends React.Component {
 
   render() {
-    const { region, network, showingBikes } = this.props;
-    let stations = []
-    /*if(network) {
-      console.warn(network);
-      stations = network.stations.map(station => {
+    const { center, stations, showingBikes } = this.props;
+    const region = {
+      latitude: center.latitude,
+      longitude: center.longitude,
+      latitudeDelta: INITIAL_LATITUDE_DELTA,
+      longitudeDelta: INITIAL_LONGITUDE_DELTA,
+    };
+
+    let markers = [];
+    if(stations) {
+      markers = stations.map(station => {
         return (
             <MapView.Marker
                 image={getPin(station, showingBikes)}
@@ -89,23 +100,23 @@ class BikesMapView extends React.Component {
             />
         );
       });
-    }*/
+    }
     return (
       <MapView
           style={styles.map}
           ref={ref => {
             this.map = ref;
           }}
-          region={region}
+          initialRegion={region}
           showsUserLocation
           showsMyLocationButton
       >
-        { stations }
+        { markers }
       </MapView>
     );
   }
 };
 
-const ReduxBikesMapView = connect(mapStateToProps)(BikesMapView);
+const ReduxBikesMapView = withRouter(connect(mapStateToProps)(BikesMapView));
 
 export { ReduxBikesMapView };
