@@ -8,6 +8,8 @@ import {
   Easing,
 } from 'react-native';
 
+import { material } from './src/commons/material';
+
 const Button = StyleSheet.create({
   icon: {
     width: 24,
@@ -83,10 +85,10 @@ class FloatingActionButton extends React.Component {
       onPress,
       disabled,
       testID,
-      elevation,
       radius,
       small,
       style,
+      elevation
     } = this.props;
 
     const buttonStyle = [];

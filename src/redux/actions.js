@@ -2,6 +2,13 @@ import { getBikeNetworkInfo, getCities } from '../api/api';
 import { COUNTRY_CODES } from '../commons/consts';
 import kebabCase from 'lodash/kebabCase';
 
+const mapDataLoadingStatus = ({ status }) => {
+  return {
+    type: 'map-data-state',
+    status,
+  };
+};
+
 const setCountriesInfo = ({ countries }) => {
   return {
     type: 'set-countries-info',
@@ -22,10 +29,10 @@ const updateSelectedNetwork = (data) => {
   };
 };
 
-const updateMapCenter = (center) => {
+const updateMapRegion = (region) => {
   return {
-    type: 'set-map-center',
-    center,
+    type: 'set-map-region',
+    region,
   };
 }
 
@@ -84,15 +91,21 @@ const updateCountryList =  () => {
 const updateNetwork = ({network}) => {
   return async (dispatch) => {
     if (network) {
-      const res = await getBikeNetworkInfo(network);
-      const center = {
-        latitude: res.location.latitude,
-        longitude: res.location.longitude,
-      };
-      dispatch(updateSelectedNetwork(res));
-      dispatch(updateMapCenter(center))
+      dispatch(mapDataLoadingStatus({status: 'loading'}));
+      try {
+        const res = await getBikeNetworkInfo(network);
+        const center = {
+          latitude: res.location.latitude,
+          longitude: res.location.longitude,
+        };
+        dispatch(updateSelectedNetwork(res));
+        dispatch(updateMapRegion(center));
+        dispatch(mapDataLoadingStatus({status: 'complete'}));
+      } catch(error) {
+        dispatch(mapDataLoadingStatus({status: 'error'}));
+      }
     }
   }
 };
 
-export { setCountriesInfo, setBikeParkingMode, updateNetwork, updateCountryList, updateMapCenter };
+export { setCountriesInfo, setBikeParkingMode, updateNetwork, updateCountryList, updateMapRegion };

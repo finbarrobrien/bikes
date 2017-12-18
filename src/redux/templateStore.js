@@ -4,9 +4,13 @@ const templateStore = {
   selectedCountry: {},
   selectedCity: {},
   selectedNetwork: {},
-  mapCenter: {
-    latitude: 53.347539,
-    longitude: -6.259272,
+  region: null,
+  favourites: [],
+  states: {
+    mapData: 'empty',
+    countryData: 'empty',
+    cityData: 'empty',
+    networkData: 'empty',
   }
 };
 

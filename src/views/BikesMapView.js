@@ -4,7 +4,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { icons } from '../commons/icons';
-
+import { updateMapRegion } from '../redux/actions';
 
 const styles = {
   map: {
@@ -21,37 +21,21 @@ const mapStateToProps = store => {
   return {
     showingBikes: store.showingBikes,
     stations: store.selectedNetwork.stations,
-    center: store.mapCenter,
+    region: store.region,
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    updateMapRegion: region => {
+      dispatch(updateMapRegion(region));
+    },
   };
 };
 
 const getStationDescription = station => {
   return `${station.free_bikes || 0} bikes, ${station.empty_slots || 0} spaces`;
 };
-
-/*const getLocation = () => {
-  let watchId = null;
-  if (navigator.geolocation) {
-    const position = navigator.geolocation.getCurrentPosition((position) => {
-          this.setState({
-            region: {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              latitudeDelta: INITIAL_LATITUDE_DELTA,
-              longitudeDelta: INITIAL_LONGITUDE_DELTA,
-            },
-            error: null,
-          })
-        },
-        (error) => { console.warn(error); }),
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
-  } else {
-    this.setState({
-      error: 'Geolocation is not available'
-    })
-  }
-  return watchId;
-}*/
 
 const getPin = (station, showingBikes) => {
   if (showingBikes) {
@@ -74,49 +58,69 @@ const getPin = (station, showingBikes) => {
 };
 
 class BikesMapView extends React.Component {
+  markerCoordinates = [];
+  markers = [];
+
+  componentDidUpdate() {
+    if (this.map && this.markerCoordinates.length) {
+      this.map.fitToCoordinates(this.markerCoordinates, {
+        animated: true,
+        edgePadding: { top: 16, right: 16, bottom: 16, left: 16 },
+      });
+    }
+  }
 
   render() {
-    const { center, stations, showingBikes } = this.props;
-    const region = {
-      latitude: center.latitude,
-      longitude: center.longitude,
-      latitudeDelta: INITIAL_LATITUDE_DELTA,
-      longitudeDelta: INITIAL_LONGITUDE_DELTA,
-    };
+    const { stations, showingBikes, updateMapRegion } = this.props;
+    let region;
+    if (!this.props.region) {
+      region = {
+        latitude: 53.347539,
+        longitude: -6.259272,
+        latitudeDelta: INITIAL_LATITUDE_DELTA,
+        longitudeDelta: INITIAL_LONGITUDE_DELTA,
+      };
+    } else {
+      region = this.props.region;
+    }
 
-    let markers = [];
-    if(stations) {
-      markers = stations.map(station => {
-        return (
-            <MapView.Marker
-                image={getPin(station, showingBikes)}
-                key={station.id}
-                title={station.extra.address || station.name}
-                description={getStationDescription(station)}
-                coordinate={{
-                  latitude: station.latitude,
-                  longitude: station.longitude,
-                }}
-            />
+    if (stations) {
+      this.markers = [];
+      this.markerCoordinates = [];
+      stations.forEach(station => {
+        const marker = {
+          latitude: station.latitude,
+          longitude: station.longitude,
+        };
+        this.markerCoordinates.push(marker);
+        this.markers.push(
+          <MapView.Marker
+            image={getPin(station, showingBikes)}
+            key={station.id}
+            title={station.extra.address || station.name}
+            description={getStationDescription(station)}
+            coordinate={marker}
+          />,
         );
       });
     }
     return (
       <MapView
-          style={styles.map}
-          ref={ref => {
-            this.map = ref;
-          }}
-          initialRegion={region}
-          showsUserLocation
-          showsMyLocationButton
+        style={styles.map}
+        region={region}
+        ref={elem => {
+          this.map = elem;
+        }}
+        onRegionChangeComplete={(region) => updateMapRegion(region)}
       >
-        { markers }
+        {this.markers}
       </MapView>
     );
   }
-};
+}
 
-const ReduxBikesMapView = withRouter(connect(mapStateToProps)(BikesMapView));
+const ReduxBikesMapView = withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(BikesMapView),
+);
 
 export { ReduxBikesMapView };
