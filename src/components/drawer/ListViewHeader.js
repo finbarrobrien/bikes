@@ -20,15 +20,15 @@ const styles = {
 const ListViewHeader = ({ title, history }) => {
   return (
     <View style={styles.header}>
-      <View style={styles.backButton}>
-        <TouchableOpacity
-          onPress={() => {
-            history.go(-1);
-          }}
-        >
+      <TouchableOpacity
+        onPress={() => {
+          history.go(-1);
+        }}
+      >
+        <View style={styles.backButton}>
           <Image style={styles.icon} source={{ uri: icons.backButton }} />
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
       <Text style={fonts.title} numberOfLines={1} ellipsizeMode="tail">
         {title}
       </Text>

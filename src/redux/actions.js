@@ -9,6 +9,13 @@ const mapDataLoadingStatus = ({ status }) => {
   };
 };
 
+const countryDataLoadingStatus = ({ status }) => {
+  return {
+    type: 'country-data-state',
+    status,
+  };
+};
+
 const setCountriesInfo = ({ countries }) => {
   return {
     type: 'set-countries-info',
@@ -22,76 +29,85 @@ const setBikeParkingMode = () => {
   };
 };
 
-const updateSelectedNetwork = (data) => {
+const updateSelectedNetwork = data => {
   return {
     type: 'set-selected-network-data',
     data,
   };
 };
 
-const updateMapRegion = (region) => {
+const updateMapRegion = region => {
   return {
     type: 'set-map-region',
     region,
   };
-}
+};
 
-const updateCountryList =  () => {
-  return async (dispatch) => {
-    const responseJson = await getCities();
-    const countries = [];
-    responseJson.networks.forEach(net => {
-      let c = countries.find(c => {
-        return c.path === net.location.country;
-      });
-      //const networkBikes = net.location.stations.reduce((sum, station) => { return sum + (station.free_bikes || 0); }, 0);
-      if (!c) {
-        const cMap = COUNTRY_CODES.find(country => {
-          return country.shortCode === net.location.country;
+const updateCountryList = () => {
+  return async dispatch => {
+    dispatch(countryDataLoadingStatus({status: 'loading'}));
+    try {
+      const responseJson = await getCities();
+      const countries = [];
+      responseJson.networks.forEach(net => {
+        let c = countries.find(c => {
+          return c.path === net.location.country;
         });
-        if (cMap) {
-          countries.push({
-            label: cMap.label,
-            path: net.location.country,
-            cities: [{
+        //const networkBikes = net.location.stations.reduce((sum, station) => { return sum + (station.free_bikes || 0); }, 0);
+        if (!c) {
+          const cMap = COUNTRY_CODES.find(country => {
+            return country.shortCode === net.location.country;
+          });
+          if (cMap) {
+            countries.push({
+              label: cMap.label,
+              path: net.location.country,
+              cities: [
+                {
+                  label: net.location.city,
+                  path: kebabCase(net.location.city),
+                  networks: [net],
+                },
+              ],
+            });
+          } else {
+            console.warn(net.location);
+          }
+        } else {
+          const city = c.cities.find(city => {
+            return city.label === net.location.city;
+          });
+          if (city) {
+            city.networks.push(net);
+          } else {
+            c.cities.push({
               label: net.location.city,
               path: kebabCase(net.location.city),
               networks: [net],
-            }],
-          });
-        } else {
-          console.warn(net.location);
+            });
+          }
         }
-      } else {
-        const city = c.cities.find((city) => { return city.label === net.location.city; });
-        if (city) {
-          city.networks.push(net);
-        } else {
-          c.cities.push({
-            label: net.location.city,
-            path: kebabCase(net.location.city),
-            networks: [net],});
-        }
-      }
-    });
-    countries.forEach(country => {
-      country.cities.sort((a, b) => {
-        return a.label < b.label
-            ? -1
-            : a.label > b.label ? 1 : 0;
       });
-    });
-    countries.sort((a, b) => {
-      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
-    });
-    dispatch(setCountriesInfo({countries}));
+      countries.forEach(country => {
+        country.cities.sort((a, b) => {
+          return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+        });
+      });
+      countries.sort((a, b) => {
+        return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+      });
+      dispatch(countryDataLoadingStatus({status: 'complete'}));
+      dispatch(setCountriesInfo({countries}));
+    } catch(error) {
+      dispatch(countryDataLoadingStatus({status: 'error'}));
+    }
   }
 };
 
-const updateNetwork = (network) => {
-  return async (dispatch) => {
+const updateNetwork = network => {
+  return async dispatch => {
     if (network) {
-      dispatch(mapDataLoadingStatus({status: 'loading'}));
+      dispatch(mapDataLoadingStatus({ status: 'loading' }));
       try {
         const res = await getBikeNetworkInfo(network);
         const center = {
@@ -100,12 +116,18 @@ const updateNetwork = (network) => {
         };
         dispatch(updateSelectedNetwork(res));
         dispatch(updateMapRegion(center));
-        dispatch(mapDataLoadingStatus({status: 'complete'}));
-      } catch(error) {
-        dispatch(mapDataLoadingStatus({status: 'error'}));
+        dispatch(mapDataLoadingStatus({ status: 'complete' }));
+      } catch (error) {
+        dispatch(mapDataLoadingStatus({ status: 'error' }));
       }
     }
-  }
+  };
 };
 
-export { setCountriesInfo, setBikeParkingMode, updateNetwork, updateCountryList, updateMapRegion };
+export {
+  setCountriesInfo,
+  setBikeParkingMode,
+  updateNetwork,
+  updateCountryList,
+  updateMapRegion,
+};

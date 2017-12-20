@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, BackHandler } from 'react-native';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { icons } from '../commons/icons';
@@ -94,6 +94,22 @@ class BikesMapView extends React.Component {
         this.fitToMarkers();
       }*/
     }
+  }
+
+
+  componentDidMount() {
+    // Exit on back button press when in map view
+    BackHandler.addEventListener('hardwareBackPress', function() {
+      BackHandler.exitApp();
+      return false;
+    });
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', function() {
+      BackHandler.exitApp();
+      return false;
+    });
   }
 
 

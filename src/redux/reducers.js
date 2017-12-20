@@ -32,6 +32,13 @@ const bikesReducers = (state, action) => {
           mapData: action.status,
         }
       };
+    case 'country-data-state':
+      return {
+        ...state,
+        states: {
+          countryData: action.status,
+        }
+      };
     default:
       return state;
   }

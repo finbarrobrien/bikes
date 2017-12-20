@@ -6,9 +6,9 @@
  *  [ ] - API error handling
  *  [ ] - API errors trigger alert messages
  *  [ ] - Header on map view showing selected city, and network
- *  [ ] - pan+zoom to selected network stations on select network
+ *  [X] - pan+zoom to selected network stations on select network
  *  [ ] - button to pan+zoom back to selected network stations
- *  [ ] - Handle pinch/pan gesture blocking by buttons div
+ *  [X] - Handle pinch/pan gesture blocking by buttons div
  *  [ ] - transitions between country, city, network select screens
  *  [ ] - Card detailing station on long press
  *  [ ] - Add navigation?
@@ -23,7 +23,7 @@
  *  [ ] - Loading splash screen
  *  [ ] - About screen
  *  [ ] - Copyright screen
- *  [ ] - Back on map should exit app
+ *  [X] - Back on map should exit app
  *  [ ] - App Icon
  *  [ ] - Rate App on store dialog
  *  [X] - Map animates back to fit markers after change network.
