@@ -1,7 +1,11 @@
 import React, {Component} from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, FlatList } from 'react-native';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-native';
+
+import { ListItem } from '../components/drawer/ListItem';
 import { ListViewHeader } from '../components/drawer/ListViewHeader';
+import { updateNetwork } from '../redux/actions';
 
 const styles = {
   containerFullScreen: {
@@ -19,6 +23,14 @@ const mapStateToProps = store => {
   };
 };
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    selectNetwork: (network) => {
+      dispatch(updateNetwork(network));
+    },
+  };
+};
+
 const title = 'Favourite Networks';
 
 class FavouriteListView extends Component  {
@@ -31,15 +43,34 @@ class FavouriteListView extends Component  {
 
 
   render() {
-    const { match, location, history } = this.props;
+    const { match, location, history, favourites, selectNetwork } = this.props;
     return(
         <View style={styles.containerFullScreen}>
           <ListViewHeader history={history} title={title} />
+          <FlatList
+              data={favourites}
+              keyExtractor={item => {
+                const { country, city, network } = item;
+                return `${network}/${city}/${country}`;
+              }}
+              renderItem={({ item }) => {
+                const { country, city, network } = item;
+                return (
+                    <Link
+                        key={`${network}/${city}/${country}`}
+                        to={`/citybikes/${country}/${city}/${network}`}
+                        onPress={ () => { selectNetwork(network)} }
+                        component={ListItem}
+                        text={`${network}/${city}/${country}`}
+                    />
+                );
+              }}
+          />
         </View>
     );
   }
 };
 
-const ReduxFavouriteListView = connect(mapStateToProps)(FavouriteListView);
+const ReduxFavouriteListView = connect(mapStateToProps, mapDispatchToProps)(FavouriteListView);
 
 export { ReduxFavouriteListView };
