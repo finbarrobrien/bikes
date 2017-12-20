@@ -75,11 +75,13 @@ class BikesMapView extends React.Component {
 
   fitToMarkers() {
     if (this.props.stations && this.props.stations.length) {
-      this.shouldFitMarkers = false;
-      this.map.fitToCoordinates(this.props.stations.map(stationCoordinates), {
-        animated: true,
-        edgePadding: { top: 82, right: 82, bottom: 82, left: 82 },
-      });
+      setTimeout(() => {
+        this.shouldFitMarkers = false;
+        this.map.fitToCoordinates(this.props.stations.map(stationCoordinates), {
+          animated: true,
+          edgePadding: { top: 82, right: 82, bottom: 82, left: 82 },
+        });
+      }, 200);
     }
   }
 
@@ -96,7 +98,7 @@ class BikesMapView extends React.Component {
 
 
   render() {
-    const { region, stations, showingBikes, updateMapRegion } = this.props;
+    const { region, stations, showingBikes, updateMapRegion, history } = this.props;
     let mapRegion;
     if (!region) {
       mapRegion = DEFAULT_REGION;

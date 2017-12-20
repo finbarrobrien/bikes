@@ -8,7 +8,7 @@
  *  [ ] - Header on map view showing selected city, and network
  *  [ ] - pan+zoom to selected network stations on select network
  *  [ ] - button to pan+zoom back to selected network stations
- *  [ ] - figure out why map becomes unresponsive sometimes (https://github.com/react-community/react-native-maps/issues/522)
+ *  [ ] - Handle pinch/pan gesture blocking by buttons div
  *  [ ] - transitions between country, city, network select screens
  *  [ ] - Card detailing station on long press
  *  [ ] - Add navigation?
@@ -26,7 +26,12 @@
  *  [ ] - Back on map should exit app
  *  [ ] - App Icon
  *  [ ] - Rate App on store dialog
- *
- *
+ *  [X] - Map animates back to fit markers after change network.
+ *  [ ] - Map animates back to fit markers after refresh
+ *  [X] - Marker colors sometimes are incorrect. E.g. When parking is selected and there are no bikes and no spaces.
+ *  [ ] - Make empty stations or stations without parking opaque a little.
+ *  [ ] - Use AsyncStorage
+ *  [ ] - Location permissions
+ *  [ ] - Handle api errors with toast or alert
  */
 const todos = [];

@@ -25,9 +25,10 @@ const styles = StyleSheet.create({
   },
 
   controls: {
-    position: 'relative',
-    width: 'auto',
-    height: 'auto',
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    //height: 'inherit',
   },
   activityIndicator: {
     ...StyleSheet.absoluteFillObject,
@@ -61,10 +62,12 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     toggleBikeParking: () => {
       dispatch(setBikeParkingMode());
     },
-    refreshStations: () => {
-      if (ownProps.network) {
-        dispatch(updateNetwork(ownProps.network));
-      }
+    refreshStations: (network) => {
+      return () => {
+        if(network) {
+          dispatch(updateNetwork(network));
+        }
+      };
     },
     updateCountries: () => {
       dispatch(updateCountryList());
@@ -123,9 +126,7 @@ class BikesApp extends Component {
                 color="#757de8"
                 small={true}
                 src={icons.refresh}
-                onPress={() => {
-                  refreshStations();
-                }}
+                onPress={refreshStations(network.id)}
               />
             ) : null}
             <Link
@@ -135,7 +136,7 @@ class BikesApp extends Component {
               color="#757de8"
               small={true}
               src={icons.favourite}
-              style={{ paddingTop: 16, paddingRight: 8 }}
+              style={{ paddingRight: 8 }}
             />
           </View>
         </View>

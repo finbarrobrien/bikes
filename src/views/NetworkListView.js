@@ -25,7 +25,7 @@ const mapStateToProps = store => {
 const mapDispatchToProps = (dispatch) => {
   return {
     selectNetwork: (network) => {
-      dispatch(updateNetwork({ network }));
+      dispatch(updateNetwork(network));
     },
   };
 };

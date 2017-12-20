@@ -88,7 +88,7 @@ const updateCountryList =  () => {
   }
 };
 
-const updateNetwork = ({network}) => {
+const updateNetwork = (network) => {
   return async (dispatch) => {
     if (network) {
       dispatch(mapDataLoadingStatus({status: 'loading'}));
