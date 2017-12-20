@@ -18,15 +18,13 @@ const bikesReducers = (state, action) => {
         selectedNetwork: action.data,
       };
     case 'set-map-region':
-      const s = {
+      return {
         ...state,
         region: {
           ...state.region,
           ...action.region
         }
       };
-      //console.warn(s.region);
-      return s;
     case 'map-data-state':
       return {
         ...state,

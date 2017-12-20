@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { icons } from '../commons/icons';
 import { updateMapRegion } from '../redux/actions';
+import isEqual from 'lodash/isEqual';
 
 const styles = {
   map: {
@@ -16,6 +17,12 @@ const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
 const INITIAL_LATITUDE_DELTA = 0.0922;
 const INITIAL_LONGITUDE_DELTA = INITIAL_LATITUDE_DELTA * ASPECT_RATIO;
+const DEFAULT_REGION = {
+  latitude: 53.347539,
+  longitude: -6.259272,
+  latitudeDelta: INITIAL_LATITUDE_DELTA,
+  longitudeDelta: INITIAL_LONGITUDE_DELTA,
+};
 
 const mapStateToProps = store => {
   return {
@@ -25,7 +32,7 @@ const mapStateToProps = store => {
   };
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
     updateMapRegion: region => {
       dispatch(updateMapRegion(region));
@@ -39,7 +46,7 @@ const getStationDescription = station => {
 
 const getPin = (station, showingBikes) => {
   if (showingBikes) {
-    return station.free_bikes === 0
+    return station.free_bikes === 0 || !station.free_bikes
       ? { uri: icons.marker.grey }
       : station.free_bikes < station.extra.slots * 0.33
         ? { uri: icons.marker.red }
@@ -47,7 +54,7 @@ const getPin = (station, showingBikes) => {
           ? { uri: icons.marker.amber }
           : { uri: icons.marker.green };
   } else {
-    return station.empty_slots === 0
+    return station.empty_slots === 0 || !station.empty_slots
       ? { uri: icons.marker.grey }
       : station.empty_slots < station.extra.slots * 0.33
         ? { uri: icons.marker.red }
@@ -56,64 +63,75 @@ const getPin = (station, showingBikes) => {
           : { uri: icons.marker.green };
   }
 };
+const stationCoordinates = s => {
+  return {
+    latitude: s.latitude,
+    longitude: s.longitude,
+  };
+};
 
 class BikesMapView extends React.Component {
-  markerCoordinates = [];
-  markers = [];
+  shouldFitMarkers = true;
 
-  componentDidUpdate() {
-    if (this.map && this.markerCoordinates.length) {
-      this.map.fitToCoordinates(this.markerCoordinates, {
+  fitToMarkers() {
+    if (this.props.stations && this.props.stations.length) {
+      this.shouldFitMarkers = false;
+      this.map.fitToCoordinates(this.props.stations.map(stationCoordinates), {
         animated: true,
-        edgePadding: { top: 16, right: 16, bottom: 16, left: 16 },
+        edgePadding: { top: 82, right: 82, bottom: 82, left: 82 },
       });
     }
   }
 
-  render() {
-    const { stations, showingBikes, updateMapRegion } = this.props;
-    let region;
-    if (!this.props.region) {
-      region = {
-        latitude: 53.347539,
-        longitude: -6.259272,
-        latitudeDelta: INITIAL_LATITUDE_DELTA,
-        longitudeDelta: INITIAL_LONGITUDE_DELTA,
-      };
+  // only for updates caused by new stations or mode change
+  componentDidUpdate(prev) {
+    if (!isEqual(prev.stations, this.props.stations)) {
+      this.shouldFitMarkers = true;
     } else {
-      region = this.props.region;
+      /*if(this.props.stations && !isEqual(prev.showingBikes, this.props.showingBikes)){
+        this.fitToMarkers();
+      }*/
+    }
+  }
+
+
+  render() {
+    const { region, stations, showingBikes, updateMapRegion } = this.props;
+    let mapRegion;
+    if (!region) {
+      mapRegion = DEFAULT_REGION;
+    } else {
+      mapRegion = {
+        ...DEFAULT_REGION,
+        ...region,
+      };
     }
 
-    if (stations) {
-      this.markers = [];
-      this.markerCoordinates = [];
-      stations.forEach(station => {
-        const marker = {
-          latitude: station.latitude,
-          longitude: station.longitude,
-        };
-        this.markerCoordinates.push(marker);
-        this.markers.push(
-          <MapView.Marker
-            image={getPin(station, showingBikes)}
-            key={station.id}
-            title={station.extra.address || station.name}
-            description={getStationDescription(station)}
-            coordinate={marker}
-          />,
-        );
-      });
-    }
     return (
       <MapView
         style={styles.map}
-        region={region}
+        region={mapRegion}
         ref={elem => {
           this.map = elem;
         }}
-        onRegionChangeComplete={(region) => updateMapRegion(region)}
+        onRegionChangeComplete={r => {
+          updateMapRegion(r);
+        }}
+        onLayout={() => { if(this.shouldFitMarkers) { this.fitToMarkers(); }}}
       >
-        {this.markers}
+        {stations
+          ? stations.map(s => {
+              return (
+                <MapView.Marker
+                  image={getPin(s, showingBikes)}
+                  key={s.id}
+                  title={s.extra.address || s.name}
+                  description={getStationDescription(s)}
+                  coordinate={stationCoordinates(s)}
+                />
+              );
+            })
+          : null}
       </MapView>
     );
   }

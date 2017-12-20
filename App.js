@@ -7,6 +7,7 @@ import { ReduxCountryListView } from './src/views/CountryListView';
 import { ReduxCityListView } from './src/views/CityListView';
 import { ReduxNetworkListView } from './src/views/NetworkListView';
 import { ReduxFavouriteListView } from './src/views/FavouriteListView';
+import { PermissionsAndroid } from 'react-native';
 
 const routes = [
   <Route key="map" exact path="/" component={ReduxBikesApp} />,

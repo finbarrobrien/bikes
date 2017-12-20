@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
 
   map: {
@@ -25,11 +25,9 @@ const styles = StyleSheet.create({
   },
 
   controls: {
-    position: 'absolute',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
+    position: 'relative',
+    width: 'auto',
+    height: 'auto',
   },
   activityIndicator: {
     ...StyleSheet.absoluteFillObject,
@@ -93,12 +91,11 @@ class BikesApp extends Component {
       <View style={styles.container}>
         <View style={styles.map} />
         <ReduxBikesMapView />
-        {
-          activity ? <View style={styles.activityIndicator}>
+        {activity ? (
+          <View style={styles.activityIndicator}>
             <ActivityIndicator size="large" color="#ff4081" />
-          </View> : null
-        }
-
+          </View>
+        ) : null}
         <View style={styles.controls}>
           <View style={styles.button}>
             <Link
