@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { NativeRouter, AndroidBackButton } from 'react-router-native';
 import { Route } from 'react-router-dom';
-import { BikesProvider } from './src/redux/BikesProvider';
+import { StoreLoader } from './src/redux/StoreLoader';
 import { ReduxBikesApp } from './src/components/BikesApp';
 import { ReduxCountryListView } from './src/views/CountryListView';
 import { ReduxCityListView } from './src/views/CityListView';
 import { ReduxNetworkListView } from './src/views/NetworkListView';
 import { ReduxFavouriteListView } from './src/views/FavouriteListView';
-import { PermissionsAndroid } from 'react-native';
 
 const routes = [
   <Route key="map" exact path="/" component={ReduxBikesApp} />,
@@ -46,11 +45,11 @@ const routes = [
 export default class App extends Component {
   render() {
     return (
-      <BikesProvider>
+      <StoreLoader>
         <NativeRouter>
           <AndroidBackButton>{routes}</AndroidBackButton>
         </NativeRouter>
-      </BikesProvider>
+      </StoreLoader>
     );
   }
 }

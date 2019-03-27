@@ -1,4 +1,3 @@
-import { AsyncStorage } from 'react-native';
 
 const templateStore = {
   countries: [],
@@ -11,6 +10,17 @@ const templateStore = {
     country: 'Ireland',
     city: 'Dublin',
     network: 'dublinbikes',
+    label: 'dublinbikes',
+  }, {
+    country: 'Colombia',
+    city: 'Medellin',
+    network: 'encicla',
+    label: 'EnCicla',
+  }, {
+    country: 'Canada',
+    city: 'Montreal, QC',
+    network: 'bixi-montreal',
+    label: 'Bixi',
   }],
   states: {
     mapData: 'empty',

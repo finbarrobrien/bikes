@@ -43,6 +43,13 @@ const updateMapRegion = region => {
   };
 };
 
+const updateFavourites = (network) => {
+  return {
+    type: 'add-favourite',
+    network,
+  }
+}
+
 const updateCountryList = () => {
   return async dispatch => {
     dispatch(countryDataLoadingStatus({status: 'loading'}));
@@ -130,4 +137,5 @@ export {
   updateNetwork,
   updateCountryList,
   updateMapRegion,
+  updateFavourites,
 };

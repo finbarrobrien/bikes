@@ -39,6 +39,19 @@ const bikesReducers = (state, action) => {
           countryData: action.status,
         }
       };
+    case 'add-favourite':
+      const favourites = state.favourites.slice();
+      const newFav = {
+        network: action.network.network,
+        country: action.network.country,
+        city: action.network.city,
+        label: action.network.label,
+      }
+      favourites.push(newFav);
+      return {
+        ...state,
+        favourites
+      };
     default:
       return state;
   }

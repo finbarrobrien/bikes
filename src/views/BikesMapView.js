@@ -1,6 +1,11 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet, Dimensions, BackHandler } from 'react-native';
+import {
+  StyleSheet,
+  Dimensions,
+  BackHandler,
+  PermissionsAndroid,
+} from 'react-native';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { icons } from '../commons/icons';
@@ -70,8 +75,54 @@ const stationCoordinates = s => {
   };
 };
 
+
 class BikesMapView extends React.Component {
   shouldFitMarkers = true;
+
+  async requestLocationPermissions() {
+    try {
+      const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Precise Location Permission',
+            message:
+            'Bikes wants access to your precise location ' +
+            'so you can find nearby bike sharing stations',
+          },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.warn('location granted lads');
+      } else {
+        console.warn('location denied lads');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  async getUserLocation(){
+    await this.requestLocationPermissions();
+    if (navigator.geolocation) {
+      const position = await navigator.geolocation.getCurrentPosition(
+          position => {
+            const region = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              latitudeDelta: INITIAL_LATITUDE_DELTA,
+              longitudeDelta: INITIAL_LONGITUDE_DELTA,
+            };
+            console.warn(region);
+            this.props.updateMapRegion(region);
+          },
+          error => {
+            console.warn(error);
+          },
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+      );
+    } else {
+      console.warn('no location allowed');
+    }
+  };
 
   fitToMarkers() {
     if (this.props.stations && this.props.stations.length) {
@@ -96,13 +147,13 @@ class BikesMapView extends React.Component {
     }
   }
 
-
   componentDidMount() {
     // Exit on back button press when in map view
     BackHandler.addEventListener('hardwareBackPress', function() {
       BackHandler.exitApp();
       return false;
     });
+    //this.getUserLocation();
   }
 
   componentWillUnmount() {
@@ -112,9 +163,14 @@ class BikesMapView extends React.Component {
     });
   }
 
-
   render() {
-    const { region, stations, showingBikes, updateMapRegion, history } = this.props;
+    const {
+      region,
+      stations,
+      showingBikes,
+      updateMapRegion,
+      history,
+    } = this.props;
     let mapRegion;
     if (!region) {
       mapRegion = DEFAULT_REGION;
@@ -135,7 +191,11 @@ class BikesMapView extends React.Component {
         onRegionChangeComplete={r => {
           updateMapRegion(r);
         }}
-        onLayout={() => { if(this.shouldFitMarkers) { this.fitToMarkers(); }}}
+        onLayout={() => {
+          if (this.shouldFitMarkers) {
+            this.fitToMarkers();
+          }
+        }}
       >
         {stations
           ? stations.map(s => {

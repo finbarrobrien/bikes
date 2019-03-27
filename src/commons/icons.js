@@ -9,6 +9,7 @@ const icons = {
   bike: 'ic_directions_bike_white_24px',
   city: 'ic_location_city_white_24dp',
   favourite: 'ic_favorite_white_24dp',
+  favouriteBorder: 'ic_favorite_border_black_24dp',
   less: 'ic_expand_less_black_24dp',
   more: 'ic_expand_more_black_24dp',
   parking: 'ic_local_parking_white_24px',

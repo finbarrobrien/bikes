@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
 import { composeWithDevTools } from 'remote-redux-devtools';
 import { bikesReducers } from './reducers';
-import { templateStore } from './templateStore';
+
 
 
 const store = createStore(bikesReducers, templateStore, composeWithDevTools(applyMiddleware(thunkMiddleware)));

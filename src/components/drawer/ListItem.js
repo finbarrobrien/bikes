@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
   listItem: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     height: 48,
   },
@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
     paddingLeft: 16,
-    //paddingRight: 16,
+    paddingRight: 16,
   },
 
 });
@@ -23,24 +23,27 @@ const styles = StyleSheet.create({
 class ListItem extends Component {
   static defaultProps = {
     text: '',
-    badge: '',
+    action: '',
     onPress: () => {},
+    onAction: () => {},
   };
 
   render() {
-    const { badge, text, onPress } = this.props;
+    const { action, text, onPress, onAction } = this.props;
     return (
       <TouchableOpacity onPress={onPress}>
         <View style={styles.listItem}>
-          {badge ?
-            <View style={styles.badge}>
-              <Image style={{width: 24, height: 24}} source={{uri: badge}}/>
-            </View> :
-            null
-          }
           <Text style={fonts.subheader} numberOfLines={1} ellipsizeMode="tail">
             {text}
           </Text>
+          {action ?
+              <TouchableOpacity onPress={onAction}>
+                <View style={styles.badge}>
+                  <Image style={{width: 24, height: 24}} source={{uri: action}}/>
+                </View>
+              </TouchableOpacity> :
+              null
+          }
         </View>
       </TouchableOpacity>
     );

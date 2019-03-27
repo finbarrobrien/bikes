@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-native';
@@ -14,7 +14,6 @@ const styles = {
     justifyContent: 'flex-start',
     ...StyleSheet.absoluteFillObject,
   },
-
 };
 
 const mapStateToProps = store => {
@@ -23,9 +22,9 @@ const mapStateToProps = store => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    selectNetwork: (network) => {
+    selectNetwork: network => {
       dispatch(updateNetwork(network));
     },
   };
@@ -33,44 +32,46 @@ const mapDispatchToProps = (dispatch) => {
 
 const title = 'Favourite Networks';
 
-class FavouriteListView extends Component  {
-
+class FavouriteListView extends Component {
   filterText = '';
 
   static defaultProps = {
     favourites: [],
   };
 
-
   render() {
     const { match, location, history, favourites, selectNetwork } = this.props;
-    return(
-        <View style={styles.containerFullScreen}>
-          <ListViewHeader history={history} title={title} />
-          <FlatList
-              data={favourites}
-              keyExtractor={item => {
-                const { country, city, network } = item;
-                return `${network}/${city}/${country}`;
-              }}
-              renderItem={({ item }) => {
-                const { country, city, network } = item;
-                return (
-                    <Link
-                        key={`${network}/${city}/${country}`}
-                        to={`/citybikes/${country}/${city}/${network}`}
-                        onPress={ () => { selectNetwork(network)} }
-                        component={ListItem}
-                        text={`${network}/${city}/${country}`}
-                    />
-                );
-              }}
-          />
-        </View>
+    return (
+      <View style={styles.containerFullScreen}>
+        <ListViewHeader history={history} title={title} />
+        <FlatList
+          data={favourites}
+          keyExtractor={item => {
+            const { network } = item;
+            return network;
+          }}
+          renderItem={({ item }) => {
+            const { label, country, city, network } = item;
+            return (
+              <Link
+                key={`${network}/${city}/${country}`}
+                to={`/citybikes/${country}/${city}/${network}`}
+                onPress={() => {
+                  selectNetwork(network);
+                }}
+                component={ListItem}
+                text={`${label}/${city}/${country}`}
+              />
+            );
+          }}
+        />
+      </View>
     );
   }
-};
+}
 
-const ReduxFavouriteListView = connect(mapStateToProps, mapDispatchToProps)(FavouriteListView);
+const ReduxFavouriteListView = connect(mapStateToProps, mapDispatchToProps)(
+  FavouriteListView,
+);
 
 export { ReduxFavouriteListView };

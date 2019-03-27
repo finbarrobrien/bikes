@@ -33,5 +33,7 @@
  *  [ ] - Use AsyncStorage
  *  [ ] - Location permissions
  *  [ ] - Handle api errors with toast or alert
+ *  [ ] - Performance rendering a large number of markers preventing animate to fit coordinates
+ *
  */
 const todos = [];

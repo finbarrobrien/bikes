@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = store => {
   return {
+    countries: store.countries,
     network: store.selectedNetwork,
     region: store.region,
     showingBikes: store.showingBikes,
@@ -77,7 +78,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
 class BikesApp extends Component {
   componentDidMount() {
+    // Update the country list if there is no list in the store
+    //if(!(this.props.countries && this.props.countries.length)){
     this.props.updateCountries();
+    //}
   }
 
   render() {
@@ -86,7 +90,6 @@ class BikesApp extends Component {
       toggleBikeParking,
       refreshStations,
       network,
-      region,
       activity,
     } = this.props;
 
